@@ -211,14 +211,15 @@ model Todo {
 - **확인 완료** (curl): 비로그인 GET → 401 / 로그인 GET(날짜 없음) → 400 / GET 정상 → 200 / POST 정상 → 201(제목 trim 확인) / POST 빈 제목 → 400 / 재조회에 반영. 페이지: 비로그인 `/today` → 307 `/login`, 로그인 `/today?date=…` → 목록·폼 렌더, `/today`(날짜 없음) → "불러오는 중" 부트스트랩.
 - **커밋**: `feat: today todo list — list + create` (아래에서 진행)
 
-### 단계 7 — ToDo 완료 토글 / 삭제
+### 단계 7 — ToDo 완료 토글 / 삭제 ✅ 완료
 
 - **목표**: 항목을 체크하고 지운다.
-- **만드는 것**:
-  - `src/app/api/todos/[id]/route.ts` — PATCH(`done`/`title`, `done` 전환 시 `completedAt` 기록), DELETE. 둘 다 소유권 확인 + 세션 검사
-  - `src/components/TodoItem.tsx` — 체크박스 + 삭제 버튼, `useOptimistic`으로 즉시 반영
-- **완료 기준**: 체크 시 취소선/완료 스타일, 삭제 시 목록에서 사라짐. 새로고침 후 상태 유지. 다른 계정으로 로그인하면 남의 항목이 안 보임.
-- **커밋**: `feat: toggle and delete todos`
+- **만든 것**:
+  - `src/app/api/todos/[id]/route.ts` — `guard(id)`(세션 401 + ObjectId 형식 + `findFirst {id,userId}` 소유권 → 없으면 404). **PATCH** `patchSchema`(`done?`/`title?`, 최소 1개 `.refine`) → `done` 전환 시 `completedAt = new Date()` / `false` 시 `null`. **DELETE** → 204.
+  - `src/components/TodoList.tsx` — 클라이언트 상태 소유. `useOptimistic` + `startTransition` 으로 toggle/delete 즉시 반영 후 `fetch` → `router.refresh()` 로 서버 상태 재동기화.
+  - `src/components/TodoItem.tsx` — 체크박스(완료 시 취소선) + `✕` 삭제 버튼, 핸들러는 props.
+- **확인 완료** (curl): 비로그인 → 401 / 빈 `{}` PATCH → 400 / 잘못된 id → 404 / **다른 계정이 남의 todo PATCH·DELETE → 404** / 본인 toggle → `done` + `completedAt` 세팅, 되돌리면 `completedAt=null` / DELETE → 204, 재삭제 404, 목록에서 사라짐.
+- **커밋**: `feat: toggle and delete todos` (아래에서 진행)
 
 ### 단계 8 — 날짜 네비게이션 (일간 뷰 완성)
 
