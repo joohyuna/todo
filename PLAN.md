@@ -145,14 +145,18 @@ model Todo {
 - `pnpm exec prisma db push` — Atlas에 `User`·`Todo` 컬렉션 + 인덱스(`User_email_key`, `Todo_userId_date_idx`) 생성 완료.
 - `src/app/health/page.tsx` — 서버 컴포넌트, `prisma.user.count()` / `prisma.todo.count()` 출력 (**임시**, 9단계 삭제).
 - **확인 완료**: `/health` → "MongoDB Atlas 연결 성공", `users: 0` / `todos: 0`. `pnpm build` 성공 (경고 없음).
-- **커밋**: `feat: add Prisma schema and MongoDB connection` (아래에서 진행)
+- **커밋/푸시**: `d8e66a7` → `origin/master` (github.com/joohyuna/todo) 푸시 완료.
 
-### 단계 2 — 공용 검증 스키마 (zod)
+### 단계 2 — 공용 검증 스키마 (zod) ✅ 완료
 
-- **목표**: 폼과 API가 같은 규칙을 쓴다.
-- **만드는 것**: `src/lib/schemas.ts` — `loginSchema`, `registerSchema`, `todoSchema` + 타입 export.
-- **완료 기준**: `pnpm build`/`tsc` 통과. (단독 화면 없음 — 다음 단계에서 소비)
-- **커밋**: `feat: add shared zod validation schemas`
+- `zod` **4.5.4** 설치.
+- `src/lib/schemas.ts`:
+  - `loginSchema` — `email`(형식), `password`(min 1)
+  - `registerSchema` — `email`, `nickname`(trim, 2–20자), `password`(8–72자)
+  - `todoSchema` — `title`(trim, 1–200자), `date`(`^\d{4}-\d{2}-\d{2}$`)
+  - 타입 export: `LoginInput` / `RegisterInput` / `TodoInput`
+- **확인 완료**: `tsc --noEmit` 통과, `pnpm build` 통과(경고 없음), 런타임 `safeParse` 케이스(잘못된 이메일·짧은 비번·닉네임 trim·잘못된 날짜·빈 제목) 동작 확인.
+- **커밋**: `feat: add shared zod validation schemas` (아래에서 진행)
 
 ### 단계 3 — 회원가입 페이지 `/register`
 
@@ -225,5 +229,4 @@ model Todo {
 
 ## 미해결 질문
 
-- **브랜치 전략**: 현재 `master`에 커밋 중. `main`으로 이름 변경할지 여부 (기본: 그대로 `master` 유지).
-- (해결됨) `DATABASE_URL` — 자격증명 채팅으로 수신, DB 이름 `todo`, IP 등록 완료. 단계 1 착수 준비됨.
+- 없음. (해결됨: 인증 방식·ToDo 모델·스택·`DATABASE_URL` / 브랜치는 `master` 유지, `origin` = github.com/joohyuna/todo 연결·푸시 완료)
