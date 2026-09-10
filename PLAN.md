@@ -152,7 +152,7 @@ model Todo {
 - `zod` **4.5.4** 설치.
 - `src/lib/schemas.ts`:
   - `loginSchema` — `email`(형식), `password`(min 1)
-  - `registerSchema` — `email`, `nickname`(trim, 2–20자), `password`(8–72자)
+  - `registerSchema` — `email`, `nickname`(trim, 2–20자), `password`(6–72자)
   - `todoSchema` — `title`(trim, 1–200자), `date`(`^\d{4}-\d{2}-\d{2}$`)
   - 타입 export: `LoginInput` / `RegisterInput` / `TodoInput`
 - **확인 완료**: `tsc --noEmit` 통과, `pnpm build` 통과(경고 없음), 런타임 `safeParse` 케이스(잘못된 이메일·짧은 비번·닉네임 trim·잘못된 날짜·빈 제목) 동작 확인.

@@ -17,7 +17,7 @@ export const registerSchema = z.object({
     .max(20, "닉네임은 20자 이하여야 합니다."),
   password: z
     .string()
-    .min(8, "비밀번호는 8자 이상이어야 합니다.")
+    .min(6, "비밀번호는 6자 이상이어야 합니다.")
     .max(72, "비밀번호는 72자 이하여야 합니다."), // bcrypt 72바이트 경계
 });
 
