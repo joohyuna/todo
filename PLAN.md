@@ -158,28 +158,33 @@ model Todo {
 - **확인 완료**: `tsc --noEmit` 통과, `pnpm build` 통과(경고 없음), 런타임 `safeParse` 케이스(잘못된 이메일·짧은 비번·닉네임 trim·잘못된 날짜·빈 제목) 동작 확인.
 - **커밋**: `feat: add shared zod validation schemas` (아래에서 진행)
 
-### 단계 3 — 회원가입 페이지 `/register`
+### 단계 3 — 회원가입 페이지 `/register` ✅ 완료
 
 - **목표**: 새 사용자를 DB에 만든다.
-- **만드는 것**:
-  - `src/components/AuthForm.tsx` — 로그인/회원가입 공용 폼 (react-hook-form + `zodResolver`, `formState.errors` 인라인 표시)
-  - `src/app/register/page.tsx` — 회원가입 화면 (`AuthForm` 사용)
-  - `src/app/api/register/route.ts` — `registerSchema` 검증(이메일·닉네임·비밀번호) → 이메일 중복 체크 → `bcryptjs` 해시 → `prisma.user.create`
-- **완료 기준**: `/register`에서 잘못된 입력 시 인라인 에러, 정상 입력 시 가입 완료 후 `/login`으로 이동. Prisma Studio에 `email`·`nickname`·해시된 `passwordHash`를 가진 User 문서 생성 확인.
-- **커밋**: `feat: registration page and API`
+- **만든 것**:
+  - `src/components/AuthForm.tsx` — 로그인/회원가입 공용 폼 (`mode` prop), react-hook-form + `zodResolver`. **에러 표시 2군데**:
+    - 각 필드 아래 인라인 (`formState.errors` — 미입력·형식·길이). 제출 시 첫 오류 필드로 포커스.
+    - 폼 하단 영역 — 서버/제출 오류 (필드에 안 붙는 것: 이메일 중복, 네트워크 실패 등)
+    - 제출 중 버튼 비활성화 + 로딩 표시
+  - `src/app/register/page.tsx` — 회원가입 화면 (`<AuthForm mode="register" />`)
+  - `src/app/api/register/route.ts` — `registerSchema` 검증 → 이메일 소문자 정규화 + 중복 시 409(+`P2002` 방어) → `bcryptjs.hash(pw, 10)` → `prisma.user.create` → 201
+- **확인 완료** (curl): 정상 → 201, 대소문자 다른 같은 이메일 → 409, 짧은 비번 → 400(필드 에러 JSON). DB에 `passwordHash` = `$2b$10$…`(60자) 저장 확인. 테스트 계정은 삭제 → users 0.
+- **커밋**: 단계 4와 함께 (아래)
 
-### 단계 4 — 로그인 페이지 `/login` + 세션
+### 단계 4 — 로그인 페이지 `/login` + 세션 ✅ 완료
 
 - **목표**: 로그인하면 세션이 생긴다.
-- **만드는 것**:
-  - `next-auth@beta` 설치 (어댑터 없음)
-  - `src/lib/auth.ts` — Credentials Provider(`passwordHash` bcrypt compare), `session: { strategy: "jwt" }`, `session.user.id` 콜백
-  - `src/app/api/auth/[...nextauth]/route.ts` — Auth.js 핸들러
-  - `.env` / `.env.example` — `AUTH_SECRET` 채우기
-  - `src/app/login/page.tsx` — 로그인 화면 (`AuthForm` 재사용)
-  - `src/app/layout.tsx` — `SessionProvider` 추가, 헤더에 닉네임/이메일 + "로그아웃" 버튼
-- **완료 기준**: 가입한 계정으로 로그인 성공 → 홈으로 이동. 헤더에 이메일 + "로그아웃" 버튼이 보이고, 로그아웃이 동작.
-- **커밋**: `feat: credentials auth with Auth.js`
+- **만든 것**:
+  - `next-auth` **5.0.0-beta.32** 설치 (어댑터 없음). `react-hook-form` 7.87 / `@hookform/resolvers` 5.9 / `bcryptjs` 3.0 도 함께.
+  - `src/lib/auth.ts` — Credentials Provider(`authorize`: `loginSchema` → 이메일 소문자 → `findUnique` → `bcrypt.compare`), `session.strategy = "jwt"`, `jwt`/`session` 콜백으로 `session.user.id` 노출. `pages.signIn = "/login"`.
+  - `src/app/api/auth/[...nextauth]/route.ts` — `export const { GET, POST } = handlers`.
+  - `src/types/next-auth.d.ts` — `Session.user.id` / `JWT.id` 타입 확장.
+  - `.env` — `AUTH_SECRET` 생성해 기입 (`.env.example`엔 자리).
+  - `src/app/login/page.tsx` — 서버 컴포넌트, `?registered=1` 이면 안내 문구 전달 → `<AuthForm mode="login" />`.
+  - `src/components/Providers.tsx` — `SessionProvider` 래퍼. `src/components/Header.tsx` — `useSession()` 기반, 로그인 시 닉네임 + "로그아웃", 아니면 로그인/회원가입 링크. `src/app/layout.tsx`에 둘 다 장착.
+- **확인 완료** (curl + CSRF): 올바른 자격증명 → 302 `/today` + 세션 쿠키, `/api/auth/session` 에 `user.id` 포함. 틀린 비번 → 302 `/login?error=CredentialsSignin`. `AuthForm`은 이 에러를 폼 하단 "이메일 또는 비밀번호가 올바르지 않습니다."로 표시.
+- **참고**: `auth.ts`가 `bcryptjs`+`prisma`를 직접 import → Edge 미들웨어에서 못 씀. 단계 5에서 `auth.config.ts`(edge-safe) / `auth.ts`(full) 분리 필요.
+- **커밋**: `feat: registration and credentials login (Auth.js v5)` (아래에서 진행)
 
 ### 단계 5 — 라우트 보호 (middleware)
 
