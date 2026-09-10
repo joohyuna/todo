@@ -260,3 +260,13 @@ model Todo {
 ## 미해결 질문
 
 - 없음. (해결됨: 인증 방식·ToDo 모델·스택·`DATABASE_URL` / 브랜치는 `master` 유지, `origin` = github.com/joohyuna/todo 연결·푸시 완료)
+
+## 확장 후보 (단계 9 이후, 핵심 흐름 완성 뒤에)
+
+핵심 10단계에는 넣지 않고, 나중에 각각 독립 소단계로 추가한다. MongoDB + `db push` 라서 필드 추가는 무손상.
+
+- **카테고리** — `Todo`에 분류 추가. 방식 3안: ①`category String?` 자유 입력 / ②고정 상수 목록 드롭다운 / ③사용자별 `Category` 모델(색상 등). 작업량: 스키마 1줄 + `todoSchema` + `AddTodoForm` 드롭다운 + 목록 표시/필터.
+- 우선순위(`priority`), 상세 메모(`memo`), 태그(`tags`)
+- 미완료 항목 다음 날 자동 이월(carry-over)
+- 드래그로 순서 변경 (`order` 필드는 이미 예약됨)
+- 완료 시각 표시·통계 (`completedAt` 필드는 이미 예약됨)
