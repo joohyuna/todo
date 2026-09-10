@@ -1,6 +1,6 @@
 const steps = [
   { id: 0, label: "프로젝트 스캐폴딩 (Next.js + TS + Tailwind + pnpm)", done: true },
-  { id: 1, label: "DB 연결 (Prisma + MongoDB Atlas)", done: false },
+  { id: 1, label: "DB 연결 (Prisma + MongoDB Atlas)", done: true },
   { id: 2, label: "공용 검증 스키마 (zod)", done: false },
   { id: 3, label: "회원가입 페이지 /register", done: false },
   { id: 4, label: "로그인 페이지 /login + 세션", done: false },
@@ -20,7 +20,7 @@ export default function Home() {
           개발 진행 상황
         </h1>
         <p className="text-zinc-500">
-          페이지 단위로 하나씩 완성해 나갑니다. 현재 단계 0 완료.
+          페이지 단위로 하나씩 완성해 나갑니다. 현재 단계 1 완료.
         </p>
       </header>
 
