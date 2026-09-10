@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 일간 ToDo
 
-## Getting Started
+로그인한 사용자가 **날짜별로** 자신의 할 일을 등록·완료·삭제하는 개인 ToDo 앱.
 
-First, run the development server:
+## 스택
+
+- Next.js 16 (App Router, Turbopack) · React 19 · TypeScript
+- Tailwind CSS v4 (순수 유틸리티)
+- Prisma 6 + MongoDB (Atlas)
+- Auth.js v5 (Credentials + JWT 세션)
+- react-hook-form + zod (폼·API 공용 검증)
+- 패키지 매니저: **pnpm**
+
+## 로컬 실행
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# 1. 의존성 설치 (postinstall 에서 prisma generate 자동 실행)
+pnpm install
+
+# 2. 환경변수
+cp .env.example .env
+#   - DATABASE_URL : MongoDB Atlas 연결 문자열 (DB 이름 포함, 예: .../todo?...)
+#   - AUTH_SECRET  : pnpm dlx auth secret  로 생성한 값
+#   Atlas > Network Access 에 현재 IP(또는 0.0.0.0/0) 허용 필요
+
+# 3. 스키마를 DB에 반영 (MongoDB는 마이그레이션 없음)
+pnpm exec prisma db push
+
+# 4. 개발 서버
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+→ http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| 경로 | 설명 | 접근 |
+|---|---|---|
+| `/` | 로그인 시 `/today`, 아니면 `/login` 로 리다이렉트 | 공개 |
+| `/register` | 회원가입 (이메일 · 닉네임 · 비밀번호 6자 이상) | 공개 |
+| `/login` | 로그인 | 공개 |
+| `/today` | 오늘 할 일. `?date=YYYY-MM-DD` 로 다른 날짜 | 로그인 필요 |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 데이터 모델 (`prisma/schema.prisma`)
 
-## Learn More
+- `User` — `email`(unique) · `nickname` · `passwordHash`(bcrypt)
+- `Todo` — `title` · `done` · `completedAt?` · `date`("YYYY-MM-DD" 문자열) · `order` · `userId`
+  - `date`는 **브라우저 로컬 날짜** 기준 문자열. 타임존 이슈를 피하려는 선택.
 
-To learn more about Next.js, take a look at the following resources:
+## 스크립트
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| 명령 | 하는 일 |
+|---|---|
+| `pnpm dev` | 개발 서버 (Turbopack) |
+| `pnpm build` | `prisma generate && next build` |
+| `pnpm start` | 프로덕션 서버 |
+| `pnpm lint` | ESLint |
+| `pnpm exec prisma studio` | DB 브라우저 |
+| `pnpm exec prisma db push` | 스키마를 DB에 반영 |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Vercel 배포
 
-## Deploy on Vercel
+1. 이 저장소를 GitHub에 푸시 (완료됨: `github.com/joohyuna/todo`).
+2. [vercel.com/new](https://vercel.com/new) 에서 저장소 import. 프레임워크는 Next.js 자동 감지, 패키지 매니저는 `pnpm-lock.yaml`로 pnpm 자동 선택.
+3. **Environment Variables** 등록:
+   - `DATABASE_URL` — Atlas 연결 문자열 (프로덕션용 DB 이름 사용 권장, 예: `/todo`)
+   - `AUTH_SECRET` — `pnpm dlx auth secret` 값
+   - (`AUTH_URL` 은 Vercel이 자동 감지하므로 보통 생략)
+4. **MongoDB Atlas → Network Access** 에 `0.0.0.0/0` 허용 (Vercel 서버리스 IP 고정 불가).
+5. Deploy. 이후 `master` 에 푸시하면 자동 재배포.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`build` 스크립트가 `prisma generate` 를 포함하므로 Vercel 빌드 캐시로 인한 client 누락이 없습니다.

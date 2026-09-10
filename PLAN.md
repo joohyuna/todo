@@ -230,16 +230,19 @@ model Todo {
 - **확인 완료** (curl): `/today?date=2026-09-09` → "9월 9일 (수)" + "어제" + "오늘로" 노출, `/today?date=2026-09-10` → "9월 10일 (목)" + "오늘"(오늘로 없음). API `?date=2026-09-09` = 9일 항목만 / `?date=2026-09-10` = 10일 항목 2개 → 날짜별 분리 저장 확인.
 - **커밋**: `feat: date navigation for daily lists` (아래에서 진행)
 
-### 단계 9 — 마무리 & 배포 준비
+### 단계 9 — 마무리 & 배포 준비 ✅ 완료 (배포는 사용자 몫)
 
-- **목표**: 남에게 넘길 수 있는 상태.
-- **만드는 것**:
-  - `src/app/health/` 삭제 (임시 페이지 제거)
-  - `README.md` — 로컬 실행(`pnpm install` → `pnpm exec prisma db push` → `pnpm dev`) + Vercel 배포 절차
-  - `.env.example` 최종 점검
-  - 반응형·빈 상태(할 일 없음)·로딩 UI 정리
-- **완료 기준**: `pnpm build` 성공. README만 보고 처음부터 앱을 띄울 수 있다. Vercel 배포 후 아래 "검증 방법" 전체 통과.
-- **커밋**: `docs: README and deployment setup` + Vercel 배포
+- **한 것**:
+  - `src/app/health/` 삭제 (임시 DB 확인 페이지 제거).
+  - `src/middleware.ts` → `src/proxy.ts` 로 이름 변경 (Next 16 `middleware` deprecation 해소). 내용 동일: `export default NextAuth(authConfig).auth` + `matcher`.
+  - `src/app/page.tsx` — 로드맵 화면 제거, `auth()` 후 `redirect(로그인 ? "/today" : "/login")` 단순 리다이렉트.
+  - `src/app/today/loading.tsx` — RSC 조회 중 "불러오는 중…" 로딩 UI.
+  - `src/components/Header.tsx` — `status === "loading"` 도 로그인/회원가입 링크 노출 (헤더 깜빡임 제거).
+  - `README.md` — 스택·로컬 실행·데이터 모델·스크립트·Vercel 배포 절차.
+  - `.env.example` — `AUTH_URL`(배포용) 주석 추가.
+- **확인 완료**: `rm -rf .next && pnpm build` 성공(경고·deprecation 없음), `tsc` 통과. dev: `/` → 307 `/login`, `/health` → 404, `/today`(비로그인) → 307 `/login`(proxy.ts 동작 로그 확인).
+- **커밋**: `chore: finalize for release (proxy rename, README, cleanup)` (아래에서 진행)
+- **남은 것 (사용자)**: Vercel import + 환경변수(`DATABASE_URL`, `AUTH_SECRET`) 등록 + Atlas `0.0.0.0/0` → Deploy. 절차는 README 에.
 
 ## Vercel 배포 설정
 

@@ -14,7 +14,7 @@ export default function Header() {
         </Link>
 
         <nav className="flex items-center gap-3 text-sm">
-          {status === "loading" ? null : status === "authenticated" ? (
+          {status === "authenticated" ? (
             <>
               <span className="text-zinc-500">
                 {session.user?.name ?? session.user?.email}
