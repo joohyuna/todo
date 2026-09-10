@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# 디자인 참고용 (임시 — 커밋 안 함)
+/design
