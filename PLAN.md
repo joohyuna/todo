@@ -221,15 +221,14 @@ model Todo {
 - **확인 완료** (curl): 비로그인 → 401 / 빈 `{}` PATCH → 400 / 잘못된 id → 404 / **다른 계정이 남의 todo PATCH·DELETE → 404** / 본인 toggle → `done` + `completedAt` 세팅, 되돌리면 `completedAt=null` / DELETE → 204, 재삭제 404, 목록에서 사라짐.
 - **커밋**: `feat: toggle and delete todos` (아래에서 진행)
 
-### 단계 8 — 날짜 네비게이션 (일간 뷰 완성)
+### 단계 8 — 날짜 네비게이션 (일간 뷰 완성) ✅ 완료
 
 - **목표**: 어제/오늘/내일 등 날짜별로 목록을 넘겨본다.
-- **만드는 것**:
-  - `src/components/DateNav.tsx` — 이전/오늘/다음 버튼 + 현재 날짜 표시
-  - `src/app/today/page.tsx` — `?date=YYYY-MM-DD` 쿼리 읽어 해당 날짜로 조회 (없으면 오늘)
-  - `src/components/AddTodoForm.tsx` — 현재 보고 있는 `date`로 생성하도록 반영
-- **완료 기준**: 날짜를 이동하면 그 날짜의 목록만 보이고, 날짜별로 항목이 분리되어 저장된다.
-- **커밋**: `feat: date navigation for daily lists`
+- **만든 것**:
+  - `src/components/DateNav.tsx` — `‹` / `›` 버튼(`addDays(date, ∓1)` → `router.push("/today?date=…")`), "2026년 9월 10일 (목)" 형식 표시, `어제`/`오늘`/`내일` 상대 라벨, 오늘이 아니면 "오늘로" 버튼.
+  - `src/app/today/page.tsx` — `<DateNav date={date} />` 장착, 기존 `<h1>`는 `sr-only`로. (`?date` 조회·`AddTodoForm date` prop 은 단계 6에서 이미 반영됨.)
+- **확인 완료** (curl): `/today?date=2026-09-09` → "9월 9일 (수)" + "어제" + "오늘로" 노출, `/today?date=2026-09-10` → "9월 10일 (목)" + "오늘"(오늘로 없음). API `?date=2026-09-09` = 9일 항목만 / `?date=2026-09-10` = 10일 항목 2개 → 날짜별 분리 저장 확인.
+- **커밋**: `feat: date navigation for daily lists` (아래에서 진행)
 
 ### 단계 9 — 마무리 & 배포 준비
 

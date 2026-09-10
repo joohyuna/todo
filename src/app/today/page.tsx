@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isDateString } from "@/lib/date";
 import TodayRedirect from "@/components/TodayRedirect";
+import DateNav from "@/components/DateNav";
 import AddTodoForm from "@/components/AddTodoForm";
 import TodoList from "@/components/TodoList";
 
@@ -30,7 +31,8 @@ export default async function TodayPage({
 
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6 px-6 py-10">
-      <h1 className="text-xl font-bold text-zinc-900">{date}</h1>
+      <h1 className="sr-only">{date} 할 일</h1>
+      <DateNav date={date} />
       <AddTodoForm date={date} />
       <TodoList items={items} />
     </main>
