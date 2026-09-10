@@ -161,49 +161,74 @@ model Todo {
 ### 단계 3 — 회원가입 페이지 `/register`
 
 - **목표**: 새 사용자를 DB에 만든다.
-- **만드는 것**: `src/app/register/page.tsx`, `src/components/AuthForm.tsx`(react-hook-form + `zodResolver`), `src/app/api/register/route.ts`(`registerSchema` 검증: 이메일·닉네임·비밀번호 → 이메일 중복 체크 → `bcryptjs` 해시 → `prisma.user.create`).
+- **만드는 것**:
+  - `src/components/AuthForm.tsx` — 로그인/회원가입 공용 폼 (react-hook-form + `zodResolver`, `formState.errors` 인라인 표시)
+  - `src/app/register/page.tsx` — 회원가입 화면 (`AuthForm` 사용)
+  - `src/app/api/register/route.ts` — `registerSchema` 검증(이메일·닉네임·비밀번호) → 이메일 중복 체크 → `bcryptjs` 해시 → `prisma.user.create`
 - **완료 기준**: `/register`에서 잘못된 입력 시 인라인 에러, 정상 입력 시 가입 완료 후 `/login`으로 이동. Prisma Studio에 `email`·`nickname`·해시된 `passwordHash`를 가진 User 문서 생성 확인.
 - **커밋**: `feat: registration page and API`
 
 ### 단계 4 — 로그인 페이지 `/login` + 세션
 
 - **목표**: 로그인하면 세션이 생긴다.
-- **만드는 것**: `next-auth@beta` (어댑터 없음), `src/lib/auth.ts`(Credentials Provider → `passwordHash` bcrypt compare, `session: { strategy: "jwt" }`, `session.user.id` 콜백), `src/app/api/auth/[...nextauth]/route.ts`, `.env`에 `AUTH_SECRET`, `src/app/login/page.tsx`(`AuthForm` 재사용), 루트 레이아웃에 `SessionProvider`.
+- **만드는 것**:
+  - `next-auth@beta` 설치 (어댑터 없음)
+  - `src/lib/auth.ts` — Credentials Provider(`passwordHash` bcrypt compare), `session: { strategy: "jwt" }`, `session.user.id` 콜백
+  - `src/app/api/auth/[...nextauth]/route.ts` — Auth.js 핸들러
+  - `.env` / `.env.example` — `AUTH_SECRET` 채우기
+  - `src/app/login/page.tsx` — 로그인 화면 (`AuthForm` 재사용)
+  - `src/app/layout.tsx` — `SessionProvider` 추가, 헤더에 닉네임/이메일 + "로그아웃" 버튼
 - **완료 기준**: 가입한 계정으로 로그인 성공 → 홈으로 이동. 헤더에 이메일 + "로그아웃" 버튼이 보이고, 로그아웃이 동작.
 - **커밋**: `feat: credentials auth with Auth.js`
 
 ### 단계 5 — 라우트 보호 (middleware)
 
 - **목표**: 로그인 안 하면 앱을 못 본다.
-- **만드는 것**: `src/middleware.ts`(matcher: `/today`, `/api/todos/:path*`) — 미인증 시 `/login` 리다이렉트. 홈 `page.tsx`는 로그인 시 `/today`로, 아니면 `/login`으로.
+- **만드는 것**:
+  - `src/middleware.ts` — matcher `/today`, `/api/todos/:path*`; 미인증 시 `/login` 리다이렉트
+  - `src/app/page.tsx` — 로그인 시 `/today`로, 아니면 `/login`으로 (로드맵 화면은 개발 확인용으로 유지 여부 결정)
 - **완료 기준**: 시크릿 창에서 `/today` 접근 시 `/login`으로 튕김. 로그인 후 `/today` 진입.
 - **커밋**: `feat: protect routes with middleware`
 
 ### 단계 6 — 오늘 ToDo 페이지 `/today` (조회 + 추가)
 
 - **목표**: 오늘 할 일을 적고 목록으로 본다.
-- **만드는 것**: `src/lib/date.ts`(`todayString()` / `"YYYY-MM-DD"` 검증), `src/app/api/todos/route.ts`(GET: `where { userId, date }` / POST: `todoSchema` 검증 후 `date` 문자열로 생성), `src/app/today/page.tsx`(서버 컴포넌트 — 클라이언트가 넘긴 `date`(기본=오늘 로컬)로 조회), `src/components/TodoList.tsx`, `src/components/AddTodoForm.tsx`(react-hook-form).
+- **만드는 것**:
+  - `src/lib/date.ts` — `todayString()`(로컬 날짜 → `"YYYY-MM-DD"`), 포맷 검증 헬퍼
+  - `src/app/api/todos/route.ts` — GET(`where { userId, date }`) / POST(`todoSchema` 검증 후 `date` 문자열로 생성), `auth()`로 세션 검사
+  - `src/app/today/page.tsx` — 서버 컴포넌트, 클라이언트가 넘긴 `date`(기본=오늘 로컬)로 조회 → `TodoList`에 전달
+  - `src/components/TodoList.tsx` — 목록 렌더 (클라이언트)
+  - `src/components/AddTodoForm.tsx` — 입력 폼 (react-hook-form), 추가 후 `router.refresh()` 또는 `useOptimistic`
 - **완료 기준**: `/today`에서 할 일을 추가하면 목록에 즉시 나타나고, 새로고침 후에도 유지된다.
 - **커밋**: `feat: today todo list with create`
 
 ### 단계 7 — ToDo 완료 토글 / 삭제
 
 - **목표**: 항목을 체크하고 지운다.
-- **만드는 것**: `src/app/api/todos/[id]/route.ts`(PATCH: done/title, DELETE — 둘 다 소유권 확인), `src/components/TodoItem.tsx`(체크박스 + 삭제 버튼, `useOptimistic`으로 즉시 반영).
+- **만드는 것**:
+  - `src/app/api/todos/[id]/route.ts` — PATCH(`done`/`title`, `done` 전환 시 `completedAt` 기록), DELETE. 둘 다 소유권 확인 + 세션 검사
+  - `src/components/TodoItem.tsx` — 체크박스 + 삭제 버튼, `useOptimistic`으로 즉시 반영
 - **완료 기준**: 체크 시 취소선/완료 스타일, 삭제 시 목록에서 사라짐. 새로고침 후 상태 유지. 다른 계정으로 로그인하면 남의 항목이 안 보임.
 - **커밋**: `feat: toggle and delete todos`
 
 ### 단계 8 — 날짜 네비게이션 (일간 뷰 완성)
 
 - **목표**: 어제/오늘/내일 등 날짜별로 목록을 넘겨본다.
-- **만드는 것**: `src/components/DateNav.tsx`(이전/오늘/다음 + 날짜 표시), `/today?date=YYYY-MM-DD` 쿼리 처리(page.tsx·API GET에 `date` 반영).
+- **만드는 것**:
+  - `src/components/DateNav.tsx` — 이전/오늘/다음 버튼 + 현재 날짜 표시
+  - `src/app/today/page.tsx` — `?date=YYYY-MM-DD` 쿼리 읽어 해당 날짜로 조회 (없으면 오늘)
+  - `src/components/AddTodoForm.tsx` — 현재 보고 있는 `date`로 생성하도록 반영
 - **완료 기준**: 날짜를 이동하면 그 날짜의 목록만 보이고, 날짜별로 항목이 분리되어 저장된다.
 - **커밋**: `feat: date navigation for daily lists`
 
 ### 단계 9 — 마무리 & 배포 준비
 
 - **목표**: 남에게 넘길 수 있는 상태.
-- **만드는 것**: 임시 `/health` 페이지 제거, `README.md`(로컬 실행: `pnpm install` → `pnpm dlx prisma db push` → `pnpm dev` / 배포 절차), `.env.example` 최종화, 반응형·빈 상태·로딩 UI 정리.
+- **만드는 것**:
+  - `src/app/health/` 삭제 (임시 페이지 제거)
+  - `README.md` — 로컬 실행(`pnpm install` → `pnpm exec prisma db push` → `pnpm dev`) + Vercel 배포 절차
+  - `.env.example` 최종 점검
+  - 반응형·빈 상태(할 일 없음)·로딩 UI 정리
 - **완료 기준**: `pnpm build` 성공. README만 보고 처음부터 앱을 띄울 수 있다. Vercel 배포 후 아래 "검증 방법" 전체 통과.
 - **커밋**: `docs: README and deployment setup` + Vercel 배포
 
