@@ -186,14 +186,17 @@ model Todo {
 - **참고**: `auth.ts`가 `bcryptjs`+`prisma`를 직접 import → Edge 미들웨어에서 못 씀. 단계 5에서 `auth.config.ts`(edge-safe) / `auth.ts`(full) 분리 필요.
 - **커밋**: `feat: registration and credentials login (Auth.js v5)` (아래에서 진행)
 
-### 단계 5 — 라우트 보호 (middleware)
+### 단계 5 — 라우트 보호 (middleware) ✅ 완료
 
 - **목표**: 로그인 안 하면 앱을 못 본다.
-- **만드는 것**:
-  - `src/middleware.ts` — matcher `/today`, `/api/todos/:path*`; 미인증 시 `/login` 리다이렉트
-  - `src/app/page.tsx` — 로그인 시 `/today`로, 아니면 `/login`으로 (로드맵 화면은 개발 확인용으로 유지 여부 결정)
-- **완료 기준**: 시크릿 창에서 `/today` 접근 시 `/login`으로 튕김. 로그인 후 `/today` 진입.
-- **커밋**: `feat: protect routes with middleware`
+- **만든 것**:
+  - `src/lib/auth.config.ts` — Edge 안전 최소 설정(providers 빈 배열, `pages.signIn`, `authorized` 콜백에서 `/today*` 보호). prisma/bcrypt import 없음.
+  - `src/lib/auth.ts` — `...authConfig` 스프레드 + Credentials provider(authorize) + `jwt`/`session` 콜백 추가로 리팩터.
+  - `src/middleware.ts` — `export default NextAuth(authConfig).auth`, `matcher: ["/today", "/today/:path*"]`. (`/api/todos`는 미들웨어 대신 각 핸들러에서 `auth()`로 401 처리 — API 리다이렉트 방지)
+  - `src/app/page.tsx` — 서버 컴포넌트로 변경, 로그인 상태면 `redirect("/today")`, 아니면 진행현황(랜딩) 표시.
+- **확인 완료** (curl): 세션 없음 → `/today`·`/today/x` = 307 `/login?callbackUrl=…`, `/` = 200(랜딩). 세션 있음 → `/today` 통과(현재 route 미구현이라 404), `/` = 307 `/today`.
+- **참고**: `matcher` 는 pages만. `/api/todos` 보호는 단계 6에서 핸들러 `auth()` 로.
+- **커밋**: `feat: protect routes with middleware (edge-safe auth split)` (아래에서 진행)
 
 ### 단계 6 — 오늘 ToDo 페이지 `/today` (조회 + 추가)
 
