@@ -8,7 +8,7 @@ const steps = [
   { id: 3, label: "회원가입 페이지 /register", done: true },
   { id: 4, label: "로그인 페이지 /login + 세션", done: true },
   { id: 5, label: "라우트 보호 (middleware)", done: true },
-  { id: 6, label: "오늘 ToDo 페이지 /today (조회 + 추가)", done: false },
+  { id: 6, label: "오늘 ToDo 페이지 /today (조회 + 추가)", done: true },
   { id: 7, label: "ToDo 완료 토글 / 삭제", done: false },
   { id: 8, label: "날짜 네비게이션 (일간 뷰 완성)", done: false },
   { id: 9, label: "마무리 & 배포 준비", done: false },
@@ -27,7 +27,7 @@ export default async function Home() {
           개발 진행 상황
         </h1>
         <p className="text-zinc-500">
-          페이지 단위로 하나씩 완성해 나갑니다. 현재 단계 5 완료.
+          페이지 단위로 하나씩 완성해 나갑니다. 현재 단계 6 완료.
         </p>
       </header>
 

@@ -198,17 +198,18 @@ model Todo {
 - **참고**: `matcher` 는 pages만. `/api/todos` 보호는 단계 6에서 핸들러 `auth()` 로.
 - **커밋**: `feat: protect routes with middleware (edge-safe auth split)` (아래에서 진행)
 
-### 단계 6 — 오늘 ToDo 페이지 `/today` (조회 + 추가)
+### 단계 6 — 오늘 ToDo 페이지 `/today` (조회 + 추가) ✅ 완료
 
 - **목표**: 오늘 할 일을 적고 목록으로 본다.
-- **만드는 것**:
-  - `src/lib/date.ts` — `todayString()`(로컬 날짜 → `"YYYY-MM-DD"`), 포맷 검증 헬퍼
-  - `src/app/api/todos/route.ts` — GET(`where { userId, date }`) / POST(`todoSchema` 검증 후 `date` 문자열로 생성), `auth()`로 세션 검사
-  - `src/app/today/page.tsx` — 서버 컴포넌트, 클라이언트가 넘긴 `date`(기본=오늘 로컬)로 조회 → `TodoList`에 전달
-  - `src/components/TodoList.tsx` — 목록 렌더 (클라이언트)
-  - `src/components/AddTodoForm.tsx` — 입력 폼 (react-hook-form), 추가 후 `router.refresh()` 또는 `useOptimistic`
-- **완료 기준**: `/today`에서 할 일을 추가하면 목록에 즉시 나타나고, 새로고침 후에도 유지된다.
-- **커밋**: `feat: today todo list with create`
+- **만든 것**:
+  - `src/lib/date.ts` — `toDateString()`/`todayString()`(로컬 → `"YYYY-MM-DD"`), `isDateString()`(형식+실재 검증, 서버·클라 공용), `addDays()`(단계 8용).
+  - `src/app/api/todos/route.ts` — `auth()` 401 가드. GET `?date=` (형식 불량 400) → `where { userId, date }`, `order`+`createdAt` 정렬. POST `todoSchema` 검증 → `prisma.todo.create`.
+  - `src/app/today/page.tsx` — 서버 컴포넌트. `auth()` 2차 방어. `?date` 없으면 `<TodayRedirect />`, 있으면 해당 날짜 목록 조회.
+  - `src/components/TodayRedirect.tsx` — 클라이언트, `?date` 없을 때 로컬 오늘로 `router.replace`.
+  - `src/components/AddTodoForm.tsx` — 클라이언트, `todoSchema.pick({title})` + zodResolver, `date`는 prop, POST 후 `reset` + `router.refresh()`. 인라인/서버 에러 표시.
+  - `src/components/TodoList.tsx` — 클라이언트, 빈 상태 문구 + 항목 리스트(체크박스는 아직 표시만 — 단계 7에서 상호작용).
+- **확인 완료** (curl): 비로그인 GET → 401 / 로그인 GET(날짜 없음) → 400 / GET 정상 → 200 / POST 정상 → 201(제목 trim 확인) / POST 빈 제목 → 400 / 재조회에 반영. 페이지: 비로그인 `/today` → 307 `/login`, 로그인 `/today?date=…` → 목록·폼 렌더, `/today`(날짜 없음) → "불러오는 중" 부트스트랩.
+- **커밋**: `feat: today todo list — list + create` (아래에서 진행)
 
 ### 단계 7 — ToDo 완료 토글 / 삭제
 
