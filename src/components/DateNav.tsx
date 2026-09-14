@@ -95,43 +95,7 @@ export default function DateNav({ date }: { date: string }) {
   const [vy, vm] = viewMonth.split("-").map(Number);
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="flex w-full items-center justify-between gap-2">
-        <button
-          type="button"
-          onClick={() => go(addDays(date, -1))}
-          aria-label="이전 날"
-          className="rounded-full border border-zinc-300 bg-white px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50"
-        >
-          ‹
-        </button>
-
-        <div className="flex flex-col items-center gap-0.5">
-          <span className="text-sm font-semibold text-zinc-900">
-            {formatDate(date)}
-          </span>
-          {rel && <span className="text-xs font-medium text-blue-600">{rel}</span>}
-          {!isToday && (
-            <button
-              type="button"
-              onClick={() => go(todayString())}
-              className="text-xs text-zinc-400 underline hover:text-zinc-700"
-            >
-              오늘로
-            </button>
-          )}
-        </div>
-
-        <button
-          type="button"
-          onClick={() => go(addDays(date, 1))}
-          aria-label="다음 날"
-          className="rounded-full border border-zinc-300 bg-white px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50"
-        >
-          ›
-        </button>
-      </div>
-
+    <div className="flex w-full flex-col items-center gap-2">
       <div className="flex w-full rounded-full bg-brand-50 p-1 text-xs font-medium">
         <button
           type="button"
@@ -157,22 +121,62 @@ export default function DateNav({ date }: { date: string }) {
       </div>
 
       {mode === "week" ? (
-        <div className="grid w-full grid-cols-7 gap-1">
-          {getWeekDates(date).map((d, i) => (
-            <DayCell
-              key={d}
-              dateStr={d}
-              top={WEEK[i]}
-              bottom={String(Number(d.split("-")[2]))}
-              selected={d === date}
-              hasTodo={monthDots?.has(d) ?? false}
-              onSelect={go}
-            />
-          ))}
-        </div>
+        <>
+          <div className="flex w-full items-center justify-between gap-2">
+            <button
+              type="button"
+              onClick={() => go(addDays(date, -1))}
+              aria-label="이전 날"
+              className="rounded-full border border-zinc-300 bg-white px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50"
+            >
+              ‹
+            </button>
+
+            <div className="flex flex-col items-center gap-0.5">
+              <span className="text-sm font-semibold text-zinc-900">
+                {formatDate(date)}
+              </span>
+              {rel && (
+                <span className="text-xs font-medium text-blue-600">{rel}</span>
+              )}
+              {!isToday && (
+                <button
+                  type="button"
+                  onClick={() => go(todayString())}
+                  className="text-xs text-zinc-400 underline hover:text-zinc-700"
+                >
+                  오늘로
+                </button>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => go(addDays(date, 1))}
+              aria-label="다음 날"
+              className="rounded-full border border-zinc-300 bg-white px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50"
+            >
+              ›
+            </button>
+          </div>
+
+          <div className="grid w-full grid-cols-7 gap-1">
+            {getWeekDates(date).map((d, i) => (
+              <DayCell
+                key={d}
+                dateStr={d}
+                top={WEEK[i]}
+                bottom={String(Number(d.split("-")[2]))}
+                selected={d === date}
+                hasTodo={monthDots?.has(d) ?? false}
+                onSelect={go}
+              />
+            ))}
+          </div>
+        </>
       ) : (
-        <div className="flex w-full flex-col gap-1">
-          <div className="flex items-center justify-between">
+        <>
+          <div className="flex w-full items-center justify-between">
             <button
               type="button"
               onClick={() => setViewMonth((v) => addMonths(v, -1))}
@@ -194,7 +198,7 @@ export default function DateNav({ date }: { date: string }) {
             </button>
           </div>
 
-          <div className="grid grid-cols-7 gap-1 text-center text-xs text-zinc-400">
+          <div className="grid w-full grid-cols-7 gap-1 text-center text-xs text-zinc-400">
             {WEEK.map((w) => (
               <div key={w} className="py-1">
                 {w}
@@ -202,7 +206,7 @@ export default function DateNav({ date }: { date: string }) {
             ))}
           </div>
 
-          <div className="grid grid-cols-7 gap-1">
+          <div className="grid w-full grid-cols-7 gap-1">
             {getMonthMatrix(viewMonth).flatMap((row, ri) =>
               row.map((cell, ci) =>
                 cell ? (
@@ -220,7 +224,7 @@ export default function DateNav({ date }: { date: string }) {
               ),
             )}
           </div>
-        </div>
+        </>
       )}
     </div>
   );
