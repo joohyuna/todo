@@ -256,6 +256,28 @@ model Todo {
 - **확인 완료**: `tsc --noEmit`·`pnpm build` 통과.
 - **커밋**: `feat: show completion time and done/total stats` (`62f0291`)
 
+### 단계 11 — 디자인 개편 (브랜드 컬러 + 레이아웃) + 주간/월간 캘린더 ✅ 완료
+
+- **배경**: `design/img01.png`, `design/img02.png` 목업 참고, 검토 내용은 `design/notes.md`(git 제외, 로컬 전용)에 정리. 색상·레이아웃·캘린더 범위를 사용자와 여러 차례 주고받으며 확정 → 구현 → 실사용 피드백으로 반복 다듬음. 아래는 **현재 최종 상태** 기준 요약(중간 반복 커밋은 생략).
+- **만든 것 (최종 상태)**:
+  - `src/app/globals.css` — `@theme inline`에 브랜드 토큰 추가: `--color-brand-50/100/500/700/900`(그린 계열, `900`이 이름과 달리 실제로는 중간 톤 `#47a771` — 사용자가 초기 다크 그린 `#1e3f32`이 버튼에 너무 진하다고 해서 밝게 조정), `--color-accent-orange`/`--color-accent-orange-bright`(할 일 있는 날짜 표시 전용, 톤다운/밝은 오렌지 2단계). `body` 배경은 처음엔 `brand-50→100` 그라디언트였다가 사용자 요청으로 **단색 `brand-50`**으로 변경.
+  - `src/components/Header.tsx` — 흰 배경+테두리 제거, 페이지와 동일한 `bg-brand-50`으로 통일(경계 없이 이어짐). 로그인/로그아웃 모두 흰 배경 pill 버튼(`border-zinc-300 bg-white`)으로 통일, 회원가입만 `bg-brand-900` 채움 버튼. 로고 텍스트·헤딩류는 검정 유지(목업도 검정).
+  - `src/components/AuthForm.tsx`, `AddTodoForm.tsx` — input focus 테두리·제출/추가 버튼을 `brand-900`으로, 라운딩을 `rounded-xl`로.
+  - `src/app/today/page.tsx` — `<AddTodoForm>`+`<TodoList>`를 흰 카드(`rounded-t-3xl`, `flex-1`)로 감싸 화면 하단까지 꽉 채우는 바텀시트 형태로 변경(목업처럼 카드가 화면을 채우도록).
+  - `src/components/TodoItem.tsx` — 체크박스 `accent-brand-900`, 완료 항목 행에 `bg-brand-50/70` 옅은 배경.
+  - `src/lib/date.ts` — 캘린더용 순수 함수 추가: `getWeekDates`(일요일 시작 7일 배열), `isMonthString`/`toMonthString`/`addMonths`/`getMonthRange`/`getMonthMatrix`(6x7 월간 그리드). 전부 기존 `toDateString` 등과 동일하게 `Intl` 미사용, 로컬 산술 기반.
+  - `src/app/api/todos/summary/route.ts`(신규) — `GET ?month=YYYY-MM`, 해당 월에 할 일이 있는 날짜만 `distinct`로 반환(캘린더 dot 표시용, 스키마 변경 없이 기존 `Todo.date` 문자열 range 쿼리로 구현).
+  - `src/components/DateNav.tsx` — 대대적으로 재작업:
+    - 상단에 **"주간보기 / 월간보기" 토글**(항상 표시). 처음엔 "전체 캘린더 보기" 버튼 + 모달(`MonthCalendar.tsx`)이었다가, 사용자가 상단 토글 방식을 더 선호해서 **모달 삭제하고 인라인으로 전환**.
+    - 주간모드: 기존 일 단위 `‹ 날짜 ›` 헤더 + 7일 스트립. 월간모드: `‹ 월 ›` 헤더 + 요일 헤더 행 + 6x7 그리드. **두 헤더가 동시에 안 뜨도록**(처음엔 둘 다 떠서 "이중"으로 보이는 버그가 있었음 — 모드별로 하나만 렌더하도록 수정) 토글을 최상단으로 이동.
+    - 날짜 셀(`DayCell`): 숫자를 원(`h-9 w-9 rounded-full`) 정중앙에 표시, 할 일 있는 날짜는 원 하단에 겹치는 작은 점 배지(절대 위치)로 표시 — 톤다운 오렌지(평소)/밝은 오렌지(선택된 날짜 위, 대비용). 선택 시 배경 강조는 숫자 원에만 적용되고 요일 글자(일/월/화...) 색은 안 바뀜.
+    - `‹ ›` 화살표(일/월 공통): 흰 배경·테두리 제거, 글자 크기 키움(`text-xl`), 색상은 `brand-900`(오렌지는 "할 일 표시" 전용으로 구분해 남겨둠).
+    - 월간모드에서 날짜 클릭 시 더 이상 자동으로 주간모드로 전환되지 않음(처음엔 자동 전환됐는데 사용자가 불편하다고 해서 제거) — 이동만 하고 모드는 유지.
+  - `src/components/MonthCalendar.tsx` — 인라인 토글로 대체되며 **삭제**.
+- **확인 완료**: 매 변경마다 `tsc --noEmit`·`pnpm build` 통과 확인. 실제 동작 확인은 로컬에 `.env` 없어서 못 하고, 사용자가 Vercel 배포본으로 직접 확인 → 여러 차례 구두 피드백 받아 반복 수정.
+- **커밋**: `3ae5d34`(브랜드 테마+캘린더 최초 구현) → `51afcff`(주간 스트립·풀블리드 카드·버튼색 조정) → `6863e2a`(모달→인라인 토글 전환) → `10e1b78`(중복 헤더 수정) → `ca1b2e2`(단색 배경·헤더 통일·화이트 버튼·월간 클릭 유지) → `c4c2fa4`(날짜 스트립 색상 정리) → `5aa684c`(점을 원 안으로) → `107f6a5`(숫자 중앙 정렬+점 배지화)
+- **참고**: `design/notes.md`에 초기 색상 추정치가 남아있는데, 실제 채택된 최종 값(`brand-900 = #47a771`, 오렌지 토큰 등)과는 다름 — `notes.md`는 "검토 당시 기록"이고 이 PLAN.md 항목이 최종 반영 상태.
+
 ## Vercel 배포 설정
 
 - 패키지 매니저: Vercel이 `pnpm-lock.yaml` + `packageManager` 필드를 감지해 자동으로 pnpm 사용.
