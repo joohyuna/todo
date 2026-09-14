@@ -16,6 +16,9 @@
   --color-brand-500: #3e9b6f;
   --color-brand-700: #2b5a46;
   --color-brand-900: #47a771;
+
+  --color-accent-orange: #d98c4f;
+  --color-accent-orange-bright: #ff8c42;
 }
 
 @media (prefers-color-scheme: dark) {

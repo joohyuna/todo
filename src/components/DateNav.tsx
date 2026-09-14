@@ -45,15 +45,25 @@ function DayCell({
     <button
       type="button"
       onClick={() => onSelect(dateStr)}
-      className={`flex flex-col items-center gap-0.5 rounded-xl py-1.5 text-xs ${
-        selected ? "bg-brand-900 text-white" : "text-zinc-600 hover:bg-brand-50"
-      }`}
+      className="flex flex-col items-center gap-0.5 py-1.5 text-xs text-zinc-600"
     >
       {top && <span>{top}</span>}
-      <span className="text-sm font-medium">{bottom}</span>
+      <span
+        className={`flex h-7 w-7 items-center justify-center rounded-full text-sm font-medium ${
+          selected
+            ? "bg-brand-900 text-white"
+            : "text-zinc-900 hover:bg-brand-50"
+        }`}
+      >
+        {bottom}
+      </span>
       <span
         className={`h-1 w-1 rounded-full ${
-          hasTodo && !selected ? "bg-brand-500" : "bg-transparent"
+          hasTodo
+            ? selected
+              ? "bg-accent-orange-bright"
+              : "bg-accent-orange"
+            : "bg-transparent"
         }`}
       />
     </button>
@@ -122,7 +132,7 @@ export default function DateNav({ date }: { date: string }) {
               type="button"
               onClick={() => go(addDays(date, -1))}
               aria-label="이전 날"
-              className="rounded-full border border-zinc-300 bg-white px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50"
+              className="rounded-full px-3 py-1.5 text-xl text-brand-900 hover:bg-brand-50"
             >
               ‹
             </button>
@@ -149,7 +159,7 @@ export default function DateNav({ date }: { date: string }) {
               type="button"
               onClick={() => go(addDays(date, 1))}
               aria-label="다음 날"
-              className="rounded-full border border-zinc-300 bg-white px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50"
+              className="rounded-full px-3 py-1.5 text-xl text-brand-900 hover:bg-brand-50"
             >
               ›
             </button>
@@ -176,7 +186,7 @@ export default function DateNav({ date }: { date: string }) {
               type="button"
               onClick={() => setViewMonth((v) => addMonths(v, -1))}
               aria-label="이전 달"
-              className="rounded-full border border-zinc-300 bg-white px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50"
+              className="rounded-full px-3 py-1.5 text-xl text-brand-900 hover:bg-brand-50"
             >
               ‹
             </button>
@@ -187,7 +197,7 @@ export default function DateNav({ date }: { date: string }) {
               type="button"
               onClick={() => setViewMonth((v) => addMonths(v, 1))}
               aria-label="다음 달"
-              className="rounded-full border border-zinc-300 bg-white px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50"
+              className="rounded-full px-3 py-1.5 text-xl text-brand-900 hover:bg-brand-50"
             >
               ›
             </button>
