@@ -87,11 +87,6 @@ export default function DateNav({ date }: { date: string }) {
     };
   }, [activeMonth]);
 
-  function pick(d: string) {
-    go(d);
-    setMode("week");
-  }
-
   const [vy, vm] = viewMonth.split("-").map(Number);
 
   return (
@@ -216,7 +211,7 @@ export default function DateNav({ date }: { date: string }) {
                     bottom={String(Number(cell.split("-")[2]))}
                     selected={cell === date}
                     hasTodo={monthDots?.has(cell) ?? false}
-                    onSelect={pick}
+                    onSelect={go}
                   />
                 ) : (
                   <div key={`${ri}-${ci}`} />

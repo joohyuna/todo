@@ -7,7 +7,7 @@ export default function Header() {
   const { data: session, status } = useSession();
 
   return (
-    <header className="border-b border-zinc-200 bg-white">
+    <header className="bg-brand-50">
       <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-3">
         <Link href="/" className="font-bold text-zinc-900">
           일간 ToDo
@@ -22,14 +22,17 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => signOut({ callbackUrl: "/login" })}
-                className="rounded-full border border-zinc-300 px-3 py-1 text-zinc-700 hover:bg-zinc-50"
+                className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-zinc-700 hover:bg-zinc-50"
               >
                 로그아웃
               </button>
             </>
           ) : (
             <>
-              <Link href="/login" className="text-zinc-600 hover:text-zinc-900">
+              <Link
+                href="/login"
+                className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-zinc-700 hover:bg-zinc-50"
+              >
                 로그인
               </Link>
               <Link
