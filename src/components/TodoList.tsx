@@ -3,11 +3,13 @@
 import { useOptimistic, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import TodoItem from "./TodoItem";
+import TodoStats from "./TodoStats";
 
 export type TodoItemData = {
   id: string;
   title: string;
   done: boolean;
+  completedAt: Date | null;
 };
 
 type OptimisticAction =
@@ -23,7 +25,13 @@ export default function TodoList({ items }: { items: TodoItemData[] }) {
     (state, action: OptimisticAction) =>
       action.type === "toggle"
         ? state.map((t) =>
-            t.id === action.id ? { ...t, done: action.done } : t,
+            t.id === action.id
+              ? {
+                  ...t,
+                  done: action.done,
+                  completedAt: action.done ? new Date() : null,
+                }
+              : t,
           )
         : state.filter((t) => t.id !== action.id),
   );
@@ -56,11 +64,16 @@ export default function TodoList({ items }: { items: TodoItemData[] }) {
     );
   }
 
+  const doneCount = optimistic.filter((t) => t.done).length;
+
   return (
-    <ul className="divide-y divide-zinc-200 overflow-hidden rounded-lg border border-zinc-200">
-      {optimistic.map((t) => (
-        <TodoItem key={t.id} todo={t} onToggle={toggle} onDelete={remove} />
-      ))}
-    </ul>
+    <div className="flex flex-col gap-3">
+      <TodoStats done={doneCount} total={optimistic.length} />
+      <ul className="divide-y divide-zinc-200 overflow-hidden rounded-lg border border-zinc-200">
+        {optimistic.map((t) => (
+          <TodoItem key={t.id} todo={t} onToggle={toggle} onDelete={remove} />
+        ))}
+      </ul>
+    </div>
   );
 }

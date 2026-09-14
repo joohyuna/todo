@@ -26,7 +26,7 @@ export default async function TodayPage({
   const items = await prisma.todo.findMany({
     where: { userId: session.user.id, date },
     orderBy: [{ order: "asc" }, { createdAt: "asc" }],
-    select: { id: true, title: true, done: true },
+    select: { id: true, title: true, done: true, completedAt: true },
   });
 
   return (

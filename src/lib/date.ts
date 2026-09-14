@@ -31,3 +31,12 @@ export function addDays(dateStr: string, delta: number): string {
   const [y, m, d] = dateStr.split("-").map(Number);
   return toDateString(new Date(y, m - 1, d + delta));
 }
+
+/** 주어진 Date를 로컬 기준 "오전/오후 h:mm"로 (Intl 미사용 — 로케일 데이터 환경 의존 회피) */
+export function formatTime(d: Date): string {
+  const h = d.getHours();
+  const period = h < 12 ? "오전" : "오후";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  const m = String(d.getMinutes()).padStart(2, "0");
+  return `${period} ${h12}:${m}`;
+}

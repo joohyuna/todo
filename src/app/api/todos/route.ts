@@ -19,7 +19,7 @@ export async function GET(req: Request) {
   const todos = await prisma.todo.findMany({
     where: { userId: session.user.id, date },
     orderBy: [{ order: "asc" }, { createdAt: "asc" }],
-    select: { id: true, title: true, done: true, date: true },
+    select: { id: true, title: true, done: true, date: true, completedAt: true },
   });
 
   return NextResponse.json({ todos });
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
       date: parsed.data.date,
       userId: session.user.id,
     },
-    select: { id: true, title: true, done: true, date: true },
+    select: { id: true, title: true, done: true, date: true, completedAt: true },
   });
 
   return NextResponse.json({ todo }, { status: 201 });

@@ -66,7 +66,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
   const todo = await prisma.todo.update({
     where: { id },
     data,
-    select: { id: true, title: true, done: true },
+    select: { id: true, title: true, done: true, completedAt: true },
   });
 
   return NextResponse.json({ todo });
