@@ -49,15 +49,15 @@ function DayCell({
     >
       {top && <span>{top}</span>}
       <span
-        className={`flex h-9 w-9 flex-col items-center justify-center gap-0.5 rounded-full text-sm font-medium ${
+        className={`relative flex h-9 w-9 items-center justify-center rounded-full text-sm font-medium ${
           selected
             ? "bg-brand-900 text-white"
             : "text-zinc-900 hover:bg-brand-50"
         }`}
       >
-        <span>{bottom}</span>
+        {bottom}
         <span
-          className={`h-1 w-1 rounded-full ${
+          className={`absolute bottom-1.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full ${
             hasTodo
               ? selected
                 ? "bg-accent-orange-bright"
