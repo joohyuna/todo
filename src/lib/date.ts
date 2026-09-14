@@ -33,6 +33,15 @@ export function addDays(dateStr: string, delta: number): string {
   return toDateString(new Date(y, m - 1, d + delta));
 }
 
+/** date가 속한 주(일요일 시작)의 7일치 "YYYY-MM-DD" 배열 */
+export function getWeekDates(dateStr: string): string[] {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const dow = new Date(y, m - 1, d).getDay();
+  return Array.from({ length: 7 }, (_, i) =>
+    toDateString(new Date(y, m - 1, d - dow + i)),
+  );
+}
+
 /** 주어진 Date를 로컬 기준 "오전/오후 h:mm"로 (Intl 미사용 — 로케일 데이터 환경 의존 회피) */
 export function formatTime(d: Date): string {
   const h = d.getHours();

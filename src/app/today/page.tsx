@@ -30,10 +30,12 @@ export default async function TodayPage({
   });
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6 px-6 py-10">
+    <main className="mx-auto flex w-full max-w-md flex-1 flex-col">
       <h1 className="sr-only">{date} 할 일</h1>
-      <DateNav date={date} />
-      <div className="flex flex-col gap-3 rounded-2xl bg-white p-4 shadow-sm">
+      <div className="flex flex-col gap-4 px-6 pt-8">
+        <DateNav date={date} />
+      </div>
+      <div className="mt-6 flex flex-1 flex-col gap-3 rounded-t-3xl bg-white p-6 shadow-sm">
         <AddTodoForm date={date} />
         <TodoList items={items} />
       </div>

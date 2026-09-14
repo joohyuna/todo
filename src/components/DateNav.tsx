@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { addDays, todayString } from "@/lib/date";
+import { addDays, getWeekDates, todayString } from "@/lib/date";
 import MonthCalendar from "./MonthCalendar";
 
 const WEEK = ["일", "월", "화", "수", "목", "금", "토"];
@@ -25,9 +25,26 @@ export default function DateNav({ date }: { date: string }) {
   const router = useRouter();
   const go = (d: string) => router.push(`/today?date=${d}`);
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [weekDots, setWeekDots] = useState<Set<string> | null>(null);
 
   const rel = relativeLabel(date);
   const isToday = date === todayString();
+  const month = date.slice(0, 7);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/todos/summary?month=${month}`)
+      .then((res) => res.json())
+      .then((data: { dates?: string[] }) => {
+        if (!cancelled) setWeekDots(new Set(data.dates ?? []));
+      })
+      .catch(() => {
+        if (!cancelled) setWeekDots(new Set());
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [month]);
 
   return (
     <div className="flex flex-col items-center gap-2">
@@ -66,6 +83,34 @@ export default function DateNav({ date }: { date: string }) {
         ›
       </button>
     </div>
+
+      <div className="grid w-full grid-cols-7 gap-1">
+        {getWeekDates(date).map((d, i) => {
+          const day = Number(d.split("-")[2]);
+          const isSelected = d === date;
+          const hasTodo = weekDots?.has(d);
+          return (
+            <button
+              key={d}
+              type="button"
+              onClick={() => go(d)}
+              className={`flex flex-col items-center gap-0.5 rounded-xl py-1.5 text-xs ${
+                isSelected
+                  ? "bg-brand-900 text-white"
+                  : "text-zinc-600 hover:bg-brand-50"
+              }`}
+            >
+              <span>{WEEK[i]}</span>
+              <span className="text-sm font-medium">{day}</span>
+              <span
+                className={`h-1 w-1 rounded-full ${
+                  hasTodo && !isSelected ? "bg-brand-500" : "bg-transparent"
+                }`}
+              />
+            </button>
+          );
+        })}
+      </div>
 
       <button
         type="button"
