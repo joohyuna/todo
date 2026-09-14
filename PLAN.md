@@ -244,6 +244,18 @@ model Todo {
 - **커밋**: `chore: finalize for release (proxy rename, README, cleanup)` (아래에서 진행)
 - **남은 것 (사용자)**: Vercel import + 환경변수(`DATABASE_URL`, `AUTH_SECRET`) 등록 + Atlas `0.0.0.0/0` → Deploy. 절차는 README 에.
 
+### 단계 10 — 완료 시각 표시 + 완료/전체 통계 ✅ 완료
+
+- **목표**: 이미 예약돼 있던 `completedAt` 값을 실제로 화면에 노출한다.
+- **만든 것**:
+  - `src/lib/date.ts` — `formatTime(d)` 추가. "오전/오후 h:mm" 포맷, 기존 함수들과 동일하게 `Intl` 없이 순수 산술로 구현(로케일 데이터 환경 의존 회피).
+  - `src/app/today/page.tsx`, `src/app/api/todos/route.ts`(GET/POST), `src/app/api/todos/[id]/route.ts`(PATCH) — 각 `select`에 `completedAt: true` 추가. 세팅/해제 로직 자체는 단계 7에서 이미 구현되어 있었음.
+  - `src/components/TodoList.tsx` — `TodoItemData`에 `completedAt` 추가, `useOptimistic` 리듀서의 toggle 분기에서 `completedAt`도 함께 낙관적으로 파생(`done` true→`new Date()`/false→`null`). 완료 개수 계산 후 `<TodoStats>` 렌더.
+  - `src/components/TodoStats.tsx`(신규) — "완료 N / 전체 M" 표시하는 순수 프레젠테이션 컴포넌트.
+  - `src/components/TodoItem.tsx` — 완료된 항목에 "오후 3:24 완료" 표시. 서버(UTC)·브라우저(KST) 타임존 차이로 인한 하이드레이션 경고를 막기 위해 `suppressHydrationWarning` 적용(`TodayRedirect.tsx`가 `useEffect`로 이 문제를 피한 것과 같은 근본 원인, 여기선 항목별 effect 대신 React 공식 패턴 사용).
+- **확인 완료**: `tsc --noEmit`·`pnpm build` 통과.
+- **커밋**: `feat: show completion time and done/total stats` (`62f0291`)
+
 ## Vercel 배포 설정
 
 - 패키지 매니저: Vercel이 `pnpm-lock.yaml` + `packageManager` 필드를 감지해 자동으로 pnpm 사용.
@@ -276,4 +288,3 @@ model Todo {
 - 우선순위(`priority`), 상세 메모(`memo`), 태그(`tags`)
 - 미완료 항목 다음 날 자동 이월(carry-over)
 - 드래그로 순서 변경 (`order` 필드는 이미 예약됨)
-- 완료 시각 표시·통계 (`completedAt` 필드는 이미 예약됨)
