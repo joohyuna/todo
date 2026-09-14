@@ -2,6 +2,7 @@
 // "며칠"인지는 항상 클라이언트의 로컬 날짜 기준으로 정한다.
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const MONTH_RE = /^\d{4}-\d{2}$/;
 
 /** 주어진 Date(기본: 지금)를 로컬 기준 "YYYY-MM-DD" 로 */
 export function toDateString(d: Date = new Date()): string {
@@ -39,4 +40,57 @@ export function formatTime(d: Date): string {
   const h12 = h % 12 === 0 ? 12 : h % 12;
   const m = String(d.getMinutes()).padStart(2, "0");
   return `${period} ${h12}:${m}`;
+}
+
+/** "YYYY-MM" 형식이면서 월이 01~12 범위인지 */
+export function isMonthString(v: string): boolean {
+  if (!MONTH_RE.test(v)) return false;
+  const m = Number(v.split("-")[1]);
+  return m >= 1 && m <= 12;
+}
+
+/** 주어진 Date(기본: 지금)를 로컬 기준 "YYYY-MM"로 */
+export function toMonthString(d: Date = new Date()): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  return `${y}-${m}`;
+}
+
+/** "YYYY-MM"에 개월수를 더한 새 "YYYY-MM" (음수 가능) — 월간 캘린더 이전/다음 달 이동용 */
+export function addMonths(monthStr: string, delta: number): string {
+  const [y, m] = monthStr.split("-").map(Number);
+  return toMonthString(new Date(y, m - 1 + delta, 1));
+}
+
+/** "YYYY-MM"의 시작일/말일 ("YYYY-MM-DD") — API range 쿼리용 */
+export function getMonthRange(monthStr: string): { start: string; end: string } {
+  const [y, m] = monthStr.split("-").map(Number);
+  const lastDay = new Date(y, m, 0).getDate();
+  return {
+    start: `${monthStr}-01`,
+    end: `${monthStr}-${String(lastDay).padStart(2, "0")}`,
+  };
+}
+
+/**
+ * 캘린더 그리드용 6x7 매트릭스. 이전/다음 달로 채워지는 칸은 null.
+ * 일요일 시작 (DateNav의 WEEK 배열과 동일 컨벤션).
+ */
+export function getMonthMatrix(monthStr: string): (string | null)[][] {
+  const [y, m] = monthStr.split("-").map(Number);
+  const firstWeekday = new Date(y, m - 1, 1).getDay();
+  const totalDays = new Date(y, m, 0).getDate();
+
+  const cells: (string | null)[] = [];
+  for (let i = 0; i < firstWeekday; i++) cells.push(null);
+  for (let day = 1; day <= totalDays; day++) {
+    cells.push(toDateString(new Date(y, m - 1, day)));
+  }
+  while (cells.length < 42) cells.push(null);
+
+  const matrix: (string | null)[][] = [];
+  for (let i = 0; i < cells.length; i += 7) {
+    matrix.push(cells.slice(i, i + 7));
+  }
+  return matrix;
 }

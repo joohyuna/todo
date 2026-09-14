@@ -22,7 +22,7 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => signOut({ callbackUrl: "/login" })}
-                className="rounded-md border border-zinc-300 px-3 py-1 text-zinc-700 hover:bg-zinc-50"
+                className="rounded-full border border-zinc-300 px-3 py-1 text-zinc-700 hover:bg-zinc-50"
               >
                 로그아웃
               </button>
@@ -34,7 +34,7 @@ export default function Header() {
               </Link>
               <Link
                 href="/register"
-                className="rounded-md bg-zinc-900 px-3 py-1 text-white hover:bg-zinc-700"
+                className="rounded-full bg-brand-900 px-3 py-1 text-white hover:bg-brand-700"
               >
                 회원가입
               </Link>

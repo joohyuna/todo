@@ -13,13 +13,17 @@ export default function TodoItem({
   onDelete: (id: string) => void;
 }) {
   return (
-    <li className="flex items-center gap-3 px-4 py-3 text-sm">
+    <li
+      className={`flex items-center gap-3 px-4 py-3 text-sm ${
+        todo.done ? "bg-brand-50/70" : ""
+      }`}
+    >
       <input
         type="checkbox"
         checked={todo.done}
         onChange={(e) => onToggle(todo.id, e.target.checked)}
         aria-label={`${todo.title} 완료 표시`}
-        className="h-4 w-4 shrink-0 accent-zinc-900"
+        className="h-4 w-4 shrink-0 accent-brand-900"
       />
       <span className="flex flex-1 flex-col">
         <span

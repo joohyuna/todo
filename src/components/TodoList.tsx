@@ -69,7 +69,7 @@ export default function TodoList({ items }: { items: TodoItemData[] }) {
   return (
     <div className="flex flex-col gap-3">
       <TodoStats done={doneCount} total={optimistic.length} />
-      <ul className="divide-y divide-zinc-200 overflow-hidden rounded-lg border border-zinc-200">
+      <ul className="divide-y divide-zinc-200 overflow-hidden rounded-2xl border border-zinc-200">
         {optimistic.map((t) => (
           <TodoItem key={t.id} todo={t} onToggle={toggle} onDelete={remove} />
         ))}

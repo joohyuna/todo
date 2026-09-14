@@ -57,12 +57,12 @@ export default function AddTodoForm({ date }: { date: string }) {
           type="text"
           placeholder="할 일을 입력하세요"
           autoComplete="off"
-          className="flex-1 rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-900"
+          className="flex-1 rounded-xl border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-brand-900"
         />
         <button
           type="submit"
           disabled={isSubmitting}
-          className="shrink-0 rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50"
+          className="shrink-0 rounded-xl bg-brand-900 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
         >
           추가
         </button>
