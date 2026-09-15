@@ -74,6 +74,7 @@ docs/
 - `docs/adr/`에 있는 파일은 직접 수정하지 않는다 (append-only). 결정이 바뀌면 새 ADR을 만들고 이전 ADR의 Status를 `Superseded`로 변경한다.
 - 사람 확인 없이 `master`에 직접 push하지 않는다. (현재 개인 저장소라 직접 커밋 자체는 하되, force-push·reset 등 되돌리기 어려운 작업은 항상 먼저 확인받는다.)
 - `.env`의 실제 값(`DATABASE_URL`, `AUTH_SECRET`)이나 그 외 시크릿이 포함된 파일은 커밋하지 않는다. 템플릿은 `.env.example`에만 자리표시자로 남긴다.
+- **`PLAN.md`/`README.md` 같은 서술형 문서에도 실제 자격증명 관련 값(DB 사용자명, 호스트명, 연결 문자열 등)을 적지 않는다** — 비밀번호만 가리고 사용자명·호스트는 실제 값을 그대로 적는 실수를 하지 않는다. 항상 `<사용자>`, `<클러스터>` 같은 자리표시자를 쓴다. (실제로 `PLAN.md`에 실제 사용자명·클러스터 주소가 노출되어 Atlas 비밀번호를 교체해야 했던 사고가 있었음 — `docs/architecture/ARCHITECTURE.md` "로컬 개발 환경" 절 참고.)
 - `Todo.date`를 `DateTime` 타입으로 바꾸거나 서버(UTC) 기준 날짜 계산으로 되돌리지 않는다 — 브라우저 로컬 날짜 문자열(`"YYYY-MM-DD"`) 방식은 타임존 버그를 피하기 위한 의도된 설계다 (`docs/adr/0002-todo-date-as-local-string.md`).
 - `prisma` / `@prisma/client`를 7.x 이상으로 올리지 않는다 — 이 버전대는 아직 MongoDB provider를 지원하지 않는다 (`docs/adr/0003-prisma-6x-pin.md`).
 - `design/notes.md`(git 무시, 로컬 전용)를 최종 디자인 값의 출처로 삼지 않는다 — 검토 당시 초안이라 실제 채택 값과 다를 수 있다. 최종 상태는 `docs/architecture/ARCHITECTURE.md`와 코드 기준으로 확인한다.
