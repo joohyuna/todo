@@ -1,5 +1,7 @@
 # Next.js + TypeScript 일간 ToDo 앱 구축 계획
 
+> **아카이브 안내**: `CLAUDE.md` 도입 이후 신규 문서 구조는 `docs/`(`prd/`, `architecture/ARCHITECTURE.md`, `adr/`, `rfcs/`)를 따른다. 이 파일은 그 구조 도입 이전(단계 0~11)의 단계별 구현 이력을 그대로 보존하는 아카이브이며, 앞으로 새로 갱신하지 않는다. 현재 상태·결정 배경이 궁금하면 `docs/`를 먼저 확인할 것.
+
 ## Context
 
 빈 저장소(`index.js` + 최소 `package.json`)에서 시작해, **페이지 단위로 하나씩 완성**하며 만드는 개인용 일간 ToDo 앱.
