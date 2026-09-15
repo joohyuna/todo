@@ -142,7 +142,7 @@ model Todo {
 - `prisma` / `@prisma/client` **6.19.3** 설치 (Prisma 7/8는 MongoDB 미지원 → 6.x 최신). `pnpm-workspace.yaml`의 `allowBuilds`에서 `@prisma/client`·`@prisma/engines`·`prisma` = `true`.
 - `prisma/schema.prisma` — `User` + `Todo`, `Todo.date`는 `String`, `completedAt?`·`order` 필드만 예약. 커스텀 `output` 없음.
 - `src/lib/prisma.ts` — `globalThis` 싱글턴, `import { PrismaClient } from "@prisma/client"`.
-- `.env` (git 무시) 에 `DATABASE_URL` = `mongodb+srv://joohyuna2_db_user:<비번>@cluster0.ozzibnn.mongodb.net/todo?...`. `.env.example` 에 자리표시자 + `AUTH_SECRET` 자리.
+- `.env` (git 무시) 에 `DATABASE_URL` = `mongodb+srv://<사용자>:<비번>@<클러스터>.mongodb.net/todo?...`. `.env.example` 에 자리표시자 + `AUTH_SECRET` 자리.
 - `package.json` 스크립트: `postinstall: prisma generate`, `build: prisma generate && next build`.
 - `pnpm exec prisma db push` — Atlas에 `User`·`Todo` 컬렉션 + 인덱스(`User_email_key`, `Todo_userId_date_idx`) 생성 완료.
 - `src/app/health/page.tsx` — 서버 컴포넌트, `prisma.user.count()` / `prisma.todo.count()` 출력 (**임시**, 9단계 삭제).
