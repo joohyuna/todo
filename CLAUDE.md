@@ -62,7 +62,7 @@ docs/
 
 - 커밋 메시지 규칙: Conventional Commits 스타일(`feat:`, `fix:`, `chore:`, `docs:`, `change:`)을 실제로 사용 중. 제목은 한 줄로 변경 내용을 간결히 요약.
 - 브랜치 전략: 개인 프로젝트라 현재는 `master`에 직접 커밋(PR 없음). 규모가 커지면 `feature/`, `fix/` 프리픽스 도입을 검토한다.
-- 테스트: 별도 자동화 테스트 스위트는 없음. 각 기능은 `curl`로 API 동작(정상/에러/권한 케이스) 확인 + 브라우저에서 직접 눈으로 확인. 변경마다 `tsc --noEmit`과 `pnpm build` 통과가 필수 완료 기준.
+- 테스트: 별도 자동화 테스트 스위트는 없음. 각 기능은 `curl`로 API 동작(정상/에러/권한 케이스) 확인 + 브라우저에서 직접 눈으로 확인. 변경마다 `tsc --noEmit`과 `pnpm build` 통과가 필수 완료 기준. **커밋을 하기 전에 테스트는 필수적으로 진행해야 한다.**
 - 린트/포맷: 커밋 전 `pnpm lint`(ESLint) 통과 권장. 별도 포맷터 없음, Tailwind 유틸리티 클래스는 마크업에 직접 작성.
 - 데이터 검증: 클라이언트 폼(react-hook-form)과 서버 API가 `src/lib/schemas.ts`의 동일 zod 스키마를 공유한다. 새 입력 필드가 생기면 스키마를 먼저 갱신한다.
 
@@ -70,6 +70,7 @@ docs/
 
 ## 6. 하지 말아야 할 것 (Guardrails)
 
+- 오버 엔지니어링은 하지마.
 - `docs/adr/`에 있는 파일은 직접 수정하지 않는다 (append-only). 결정이 바뀌면 새 ADR을 만들고 이전 ADR의 Status를 `Superseded`로 변경한다.
 - 사람 확인 없이 `master`에 직접 push하지 않는다. (현재 개인 저장소라 직접 커밋 자체는 하되, force-push·reset 등 되돌리기 어려운 작업은 항상 먼저 확인받는다.)
 - `.env`의 실제 값(`DATABASE_URL`, `AUTH_SECRET`)이나 그 외 시크릿이 포함된 파일은 커밋하지 않는다. 템플릿은 `.env.example`에만 자리표시자로 남긴다.
