@@ -112,6 +112,13 @@ model Todo {
 - `<DateNav>` 최상단에 "주간보기 / 월간보기" 토글이 항상 하나만 렌더된다(두 헤더 동시 노출 금지). 주간모드는 7일 스트립, 월간모드는 6×7 그리드(`getMonthMatrix`) + `/api/todos/summary`로 받은 "할 일 있는 날짜" 목록을 점 배지로 표시.
 - 브랜드 컬러 토큰(`globals.css`): `--color-brand-50/100/500/700/900`(그린 계열, `900`은 실제로는 중간 톤 `#47a771`), `--color-accent-orange`/`--color-accent-orange-bright`(할 일 표시 전용). 배경은 단색 `brand-50`.
 
+## 로컬 개발 환경 — 다른 PC에서 처음 실행할 때
+
+- `.env`는 git에 없으므로(`.gitignore`) 새 PC에서는 `.env.example`을 복사해 `DATABASE_URL`, `AUTH_SECRET` 값을 직접 채워야 한다. 값 자체는 시크릿이므로 git·메신저로 옮기지 말고 비밀번호 관리자나 오프라인 매체로 옮긴다.
+- **Vercel 배포본이 특정 네트워크에서 잘 보인다고 해서 그 네트워크에서 로컬 `pnpm dev`도 된다는 보장은 없다** — 연결 경로가 다르다: Vercel 접속 시 Atlas에 접속하는 주체는 Vercel 서버이고, 로컬 실행 시엔 지금 이 PC가 직접 Atlas(`mongodb+srv`, 내부적으로 27017 포트)에 접속해야 한다. 전자는 그냥 443 포트 웹 브라우징이라 항상 되지만, 후자는 별개다.
+- 모바일 테더링처럼 통신사 NAT를 거치는 회선은 MongoDB 전용 포트로 나가는 아웃바운드를 막아둔 경우가 있다 — 이러면 Atlas Network Access에 `0.0.0.0/0`을 허용해뒀어도 연결이 안 될 수 있다.
+- 확인 방법: `.env` 채운 뒤 `pnpm exec prisma db push` 실행 — 여기서 바로 성공/실패가 갈린다. 성공하면 `pnpm dev` → `localhost:3000`으로 진행.
+
 ## Vercel 배포
 
 - Vercel이 `pnpm-lock.yaml` + `packageManager`로 pnpm을 자동 감지.
